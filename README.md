@@ -106,7 +106,7 @@ func Generate(raw Raw) Points {
 
 From the raw data, we could probably come up with an approximation of the optimal spin speed, but that is not sufficient, we need as close as possible! The next task is to use those points and model them against the reference formula to find **the** best speed for our desired thickness.
 
-Back when I originally wrote this, I used C and had to hand code my own minimizing function. Today, many of those tools are easily available and the actual implementation takes a significantly less amount of time. For my modern solution, using GoLang and minimizing and plotting functions makes this trivial.
+Back when I originally wrote this, I used C and had to hand code my own Least Squares minimizing function. Today, many of those tools are easily available and the actual implementation takes a significantly less amount of time. For my modern reincarnation, I used GoLang and utilized minimizing and plotting packages making this almost trivial.
 
 <pre>
 type Fitting struct {
