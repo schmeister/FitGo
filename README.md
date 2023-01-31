@@ -1,4 +1,4 @@
-# FitGo: Solving a Swing Curve with GoLang, go-hep, and GoNum
+# FitGo: Finding the best RPM on a Swing Curve with GoLang, go-hep, and GoNum
 
 I had been programming for quite some time, starting with an 8-bit Atari 400 with with only 8KB of RAM. My first professional task as a Software Engineer came many years later, but still over 30 years prior to 2023. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers of the time. (One caveat, since this story happened over 30 years ago, many of the details have faded, I will do the best that I can to retell as accurate as I can.)
 
