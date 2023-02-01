@@ -2,15 +2,15 @@
 
 I had been programming for quite some time, starting with an 8-bit Atari 400 with only 8KB of RAM, and I was only around 14 years old. One of my first memories of programming a computer is typing the full issue of Antic V1-N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari repeatedly, modifying the code everytime to see what happened (my favorite was Bats - page 57-60). I loved to experiment with the code for how the bat flies, and how the cave is generated.
 
-Years later, my first professional task as a Software Engineer came, yet still over 30 years ago. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers at the time. 
+In my early 20's my first professional task as a Software Engineer came. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of Computer Science classes. Modula-2, C, and the HP15c where my tools of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers at the time. 
 
 Warning: the following events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes have changed.
 
-I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication (FAB) facility, the opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
+I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication facility (FAB). The opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
 
-One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but connected to a limited supply, requiring frequent changes of the container. When the container holding the resist was empty and needed to be replaced, many checks were required to confirm that the resist coating parameters were still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: the viscosity may change as well as the photoresitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
+One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but connected to a limited supply of resist which required frequent changes. When resist replaced, many checks were required to confirm that the resist coating was still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
 
-Obtaining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skill manifested itself.
+Determining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skill manifested itself.
 
 The Swing Curve was (it may still be) a technique used that models the resist thickness, taking into account thinfilm interferrence to determine the best thickness and stability. In brief, this formula is a decaying sine wave graph that is fit from a sampling of different thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. As the wafers are exposed with a very narrow spectrum of light, constructive and destructive interferrence could be a big problem.
 
@@ -24,11 +24,11 @@ func SineFunc(x float64, ps []float64) float64 {
 }
 </pre>
 
-The dispensing and measurement phase is summarized as this: The resist is dispensed onto a series of wafers, each coated with a changing RPM, which resulted in a different thickness of resist. The thickness of each wafer is measured with a highly accurate measuring tools (https://www.kla.com/), exposed (https://www.asml.com/en), and developed, washing away the resist that was exposed (positive resist). Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope). The Resist Thickness vs CD was plotted and would look something like this:
+The dispensing and measurement phase is summarized as this: The resist is dispensed onto a series of wafers, each coated with a changing RPM, which resulted in a different thickness of resist. The thickness of each wafer is measured with a highly accurate measuring tools (https://www.kla.com/), exposed (https://www.asml.com/en), and developed, washing away the resist that was exposed (positive resist). Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope). The Resist Thickness vs CD was plotted and the raw data may look something like this:
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/raw_poly.png)
 
-As previously mentioned, spin speed, temperatures, exposure rates, and other variables may have micro-changes, the most stable location within the Swing Curve will needed to be found. This will be found by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point. A slope of Zero (0) is optimal! In the case of our Sine curve, we are only concerned with part that defines the slope, and thus need to only take a partial derivative (the Sine part) and ignore the rest (the dampening part), though we will add the Amplitude back in just for appearances.
+As previously mentioned, spin speed, temperatures, exposure rates, and other variables may have micro-changes, the most stable location within the Swing Curve will needed to be found. This will be located by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point. A slope of Zero (0) is optimal in this situation. In the case of our Sine curve, we are only concerned with the part that defines the slope, and thus need to only take a partial derivative (the sine part) and ignore the rest (the dampening part).
 
 <pre>
 func SineDerv(x float64, ps []float64) (float64, float64) {
@@ -47,6 +47,8 @@ func SineDerv(x float64, ps []float64) (float64, float64) {
 </pre>
 
 ## Step 1: Create some sample data with variability
+
+This randomized data will be used as input to our system to check that the fit and best RPM is indeed found.  See graph above with plotted raw data.
 
 <pre>
 // Raw data
@@ -108,9 +110,9 @@ func Generate(raw Raw) Points {
 
 ## Step 2: Fit our formula to that data
 
-From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework. We need to do better. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness.
+From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework if the best slope is not chosen. We need to do better. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness. To do this, we need to fit the curve to those raw points. 
 
-Back when I originally wrote this tool, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function sitting on top. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and the actual implementation takes a significantly less amount of time. For my modern reincarnation, I used GoLang and utilized minimizing and plotting packages making this almost trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
+Back when I originally wrote this, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and actual implementation takes a significantly less amount of time. For my modern reincarnation, as you can tell, I am using GoLang and reference minimizing and plotting packages making this whole system quite trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
 
 <pre>
 type Fitting struct {
