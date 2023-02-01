@@ -8,7 +8,7 @@ Warning: the following events took place over 30 years ago, many of the details 
 
 I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication facility (FAB). The opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
 
-One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but connected to a limited supply of resist which required frequent changes. When resist replaced, many checks were required to confirm that the resist coating was still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
+One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but connected to a limited supply of resist which required frequent changes. When the resist package was replaced, many checks were required to confirm that the resist coating was still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
 
 Determining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skill manifested itself.
 
@@ -28,7 +28,7 @@ The dispensing and measurement phase is summarized as this: The resist is dispen
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/raw_poly.png)
 
-As previously mentioned, spin speed, temperatures, exposure rates, and other variables may have micro-changes, the most stable location within the Swing Curve will needed to be found. This will be located by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point. A slope of Zero (0) is optimal in this situation. In the case of our Sine curve, we are only concerned with the part that defines the slope, and thus need to only take a partial derivative (the sine part) and ignore the rest (the dampening part).
+As previously mentioned, spin speed, temperatures, exposure rates, and other variables may cause micro-changes in the thickness, the most stable location within the Swing Curve will needed to be found. This will be located by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point. A slope of Zero (0) is optimal in this situation. In the case of our Sine curve, we are only concerned with the part that defines the slope, and thus need to only take a partial derivative (the sine part) and ignore the rest (the dampening part).
 
 <pre>
 func SineDerv(x float64, ps []float64) (float64, float64) {
@@ -110,9 +110,9 @@ func Generate(raw Raw) Points {
 
 ## Step 2: Fit our formula to that data
 
-From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework if the best slope is not chosen. We need to do better. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness. To do this, we need to fit the curve to those raw points. 
+From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework if the zero slope is not chosen. We can to do better than the approximation. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness. To do this, we need to fit the curve to those raw points. 
 
-Back when I originally wrote this, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and actual implementation takes a significantly less amount of time. For my modern reincarnation, as you can tell, I am using GoLang and reference minimizing and plotting packages making this whole system quite trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
+Back when I wrote my original version, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded (by myself) Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and actual implementation takes a significantly less amount of time. For my modern reincarnation, as you can tell, I am using GoLang and import minimizing and plotting packages making this whole solution quite trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
 
 <pre>
 type Fitting struct {
@@ -195,7 +195,7 @@ Looks like we got a pretty good fit!
 
 ## Step 3: Find the optimal slope
 
-In this version, I do the best RPM calulations and plotting in the same section of code. the best RPM is provided in the Key.
+In my current version, I do the best RPM calulations and plotting in the same section of code. The best RPM is provided in the Key, and the zero slope line is attached to the sine curve at the best location. 
 
 <pre>
 type Plotting struct {
@@ -285,7 +285,7 @@ And the final result:
 
 ## Step 4: but does it need to be this complicated?
 
-Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function. The use of the Decaying Sine function may only apply when experimenting with large potential thicknesses. 
+Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function. The use of the Decaying Sine function need only be applied when experimenting with larger ranges of thicknesses. Thickness variations that may span multiple waves.
 
 <pre>
 // Polynomial functions
@@ -304,4 +304,4 @@ Wow, that formula and derivation is significantly more straight forward!
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/best_poly.png)
 
-And the fit is only nominally different.
+And the best fit from the Sine vs Polynomial is only nominally different. Though using a computer, the hardest part may be determining the proper derivative for the complex forumula.
