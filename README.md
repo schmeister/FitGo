@@ -14,8 +14,8 @@ Obtaining the optimal spin speed (RPM) to obtain the best thickness is where my 
 
 The Swing Curve was (it may still be) a technique used that models the resist thickness, taking into account thinfilm interferrence to determine the best thickness and stability. In brief, this formula is a decaying sine wave graph that is fit from a sampling of different thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. As the wafers are exposed with a very narrow spectrum of light, constructive and destructive interferrence could be a big problem.
 
-![](https://github.com/schmeister/FitGo/testdata/Decay.png)
-![](https://github.com/schmeister/FitGo/testdata/SineWaveDecay.GIF)
+![](https://github.com/schmeister/FitGo/blob/main/testdata/Decay.png)
+![](https://github.com/schmeister/FitGo/blob/main/testdata/SineWaveDecay.GIF)
 <pre>
 // Sine with decay
 func SineFunc(x float64, ps []float64) float64 {
