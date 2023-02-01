@@ -16,12 +16,8 @@ import (
 	"github.com/schmeister/FitGo/pkg/funcs"
 )
 
-// http://mariotapilouw.blogspot.com/2012/03/
-// https://cars9.uchicago.edu/software/python/lmfit/examples/documentation/parameters_basic.html
-// https://github.com/lmfit/lmfit-py/tree/master/lmfit
-
-type MyFunc func(x float64, ps []float64) float64
-type MyDerv func(x float64, ps []float64) (float64, float64)
+type FitFunc func(x float64, ps []float64) float64
+type FitDerv func(x float64, ps []float64) (float64, float64)
 
 type Points struct {
 	xdata []float64
@@ -30,22 +26,22 @@ type Points struct {
 
 // Raw data generation
 type Raw struct {
-	Params    []float64
-	XVariance float64
-	YVariance float64
+	Params    []float64 // Parameters used in the FitFunc
+	Func      FitFunc	// Function used to generate the raw data
+	XVariance float64	// Amount of variance in X direction
+	YVariance float64	// Amount of variance in Y direction
 	Origin    float64
-	Min       float64
-	Max       float64
+	XMin       float64
+	YMax       float64
 	Step      float64
 	Steps     int16
-	Func      MyFunc
 }
 
 type Fitting struct {
 	// Fit start data
 	startParams []float64
 	points      Points
-	Func        MyFunc
+	Func        FitFunc
 }
 
 type Plotting struct {
@@ -61,27 +57,27 @@ type Plotting struct {
 	plot_Y_Max   float64
 
 	// Formula
-	fitFunc MyFunc
-	fitDerv MyDerv
+	fitFunc FitFunc
+	fitDerv FitDerv
 }
 
 // Main
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	// Define how the raw data is going to be generated.
+	// Define raw data generator.
 	raw := Raw{
 		// amp, omega, shift, decay
 		Params:    []float64{10.0, 2.0, 0, .025},
+		Func:      funcs.SineFunc,
 		XVariance: 0.05,
 		YVariance: 0.3,
-		Min:       0,
-		Max:       2,
+		XMin:       0,
+		YMax:       2,
 		Step:      0.1,
 		Steps:     10,
-		Func:      funcs.SineFunc,
 	}
-	points := Generate(raw)
+	points := raw.Generate()
 
 	// sine parameters: [amp, omega, shift, decay]
 	ExecuteFitAndGraph(points, funcs.SineFunc, funcs.SineDerv, []float64{10.0, 2.0, 0, .025}, "sine")
@@ -90,18 +86,18 @@ func main() {
 
 // Generate creates a number of points to attempt a fit to.
 // There is a randomization added to each point to create some variability.
-func Generate(raw Raw) Points {
+func (raw Raw) Generate() Points {
 	xdata := make([]float64, 0)
 	ydata := make([]float64, 0)
 	min := 0.0
-	max := raw.Max - raw.Min
+	max := raw.YMax - raw.XMin
 	step := (max - min) / float64(raw.Steps)
 	for i := min; i <= max; i += step {
 		// Create the real calculated value from the function f(x).
 		val := raw.Func(i, raw.Params)
 
 		// Include some Randomization and store in slice.
-		xdata = append(xdata, i+raw.Min+(rand.Float64()*2*raw.XVariance))
+		xdata = append(xdata, i+raw.XMin+(rand.Float64()*2*raw.XVariance))
 		ydata = append(ydata, val+(rand.Float64()*2*raw.YVariance))
 	}
 
@@ -133,8 +129,8 @@ func ExecuteFitAndGraph(points Points,
 	plotting := Plotting{
 		fitted:       fitted,
 		raw:          points,
-		plot_X_Label: "RPM (arbitrary)",
-		plot_Y_Label: "CD (arbitrary Critical Dimension)",
+		plot_X_Label: "some arbitrary RPM",
+		plot_Y_Label: "arbitrary CD (Critical Dimension)",
 		plot_X_Min:   points.xdata[0],
 		plot_X_Max:   points.xdata[len(points.xdata)-1],
 		plot_Y_Min:   -10.0,
