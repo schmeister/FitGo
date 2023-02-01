@@ -1,19 +1,21 @@
 # FitGo: Finding the best RPM on a Swing Curve with GoLang, go-hep, and GoNum
 
-I had been programming for quite some time, starting with an 8-bit Atari 400 with only 8KB of RAM. One of my first memories is typing the full issue of Antic V1N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari many times modifying the code everytime to see what happened. Years later, my first professional task as a Software Engineer came, yet still over 30 years ago. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers at the time. 
+I had been programming for quite some time, starting with an 8-bit Atari 400 with only 8KB of RAM, and I was only around 14 years old. One of my first memories of programming a computer is typing the full issue of Antic V1-N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari repeatedly, modifying the code everytime to see what happened (my favorite was Bats - page 57-60). I loved to experiment with the code for how the bat flies, and how the cave is generated.
 
-Warning: these events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes have changed.
+Years later, my first professional task as a Software Engineer came, yet still over 30 years ago. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers at the time. 
 
-Recently being promoted to a Process Technician in the Photolithography department of a Semi-conductor Fabrication (FAB), the opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could analyze the magnitude of data being output.
+Warning: the following events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes have changed.
 
-One key part of the process is the coating of the silicon wafers with a photoresistive layer, dispensed from a container that could hold enough liquid to cover hundreds, if not thousands of wafers. When the bottle was empty and needed to be replaced, many checks were required to confirm that the process and quality was still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: The viscosity changes as well as the photoresitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
+I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication (FAB) facility, the opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
 
-Obtaining the optimal spin speed (RPM) to obtain the best thickness is where my Software Engineering skill manifested itself.
+One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but connected to a limited supply, requiring frequent changes of the container. When the container holding the resist was empty and needed to be replaced, many checks were required to confirm that the resist coating parameters were still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: the viscosity may change as well as the photoresitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
 
-The Swing Curve is a technique used that models the resist thickness, and incorporates thinfilm interferrence to determine the best thickness and stability. In brief, this is a sine wave graph that is fit from a sampling of different resist thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. This formula takes into account the very narrow spectrum of light wavelengths being used minimizing the affects from the numerous process variations (thickness, temperature, over/under exposure, etc.).
+Obtaining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skill manifested itself.
 
-![](https://github.com/schmeister/GoPlayground/blob/main/FitGo/testdata/Decay.png)
-![](https://github.com/schmeister/FitGo/blob/main/testdata/SineWaveDecay.GIF)
+The Swing Curve was (it may still be) a technique used that models the resist thickness, taking into account thinfilm interferrence to determine the best thickness and stability. In brief, this formula is a decaying sine wave graph that is fit from a sampling of different thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. As the wafers are exposed with a very narrow spectrum of light, constructive and destructive interferrence could be a big problem.
+
+![](https://github.com/schmeister/FitGo/testdata/Decay.png)
+![](https://github.com/schmeister/FitGo/testdata/SineWaveDecay.GIF)
 <pre>
 // Sine with decay
 func SineFunc(x float64, ps []float64) float64 {
