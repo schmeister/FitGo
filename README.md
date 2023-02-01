@@ -1,14 +1,16 @@
 # FitGo: Finding the best RPM on a Swing Curve with GoLang, go-hep, and GoNum
 
-I had been programming for quite some time, starting with an 8-bit Atari 400 with with only 8KB of RAM. My first professional task as a Software Engineer came many years later, but still over 30 years prior to 2023. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers of the time. 
+I had been programming for quite some time, starting with an 8-bit Atari 400 with only 8KB of RAM. One of my first memories is typing the full issue of Antic V1N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari many times modifying the code everytime to see what happened. Years later, my first professional task as a Software Engineer came, yet still over 30 years ago. I was in college working towards my BS in Computer science and had completed Physics I & II, Calculus I & II, and a number of other Computer Science pre-requisites. Modula-2, C, and the HP15c where my languages of choice. Ok, that last one is not a language, but a computation device - **the** Scientific Calculator of Engineers at the time. 
 
-Caveat, these events took place over 30 years ago, many of the details have faded, along with many of the technologies may have changed. We were just experimenting with TARC and BARC (Top and Bottom Anti-Reflectant Coatings) back then, which may be the standard process now. I do not know, I have been out of the industry a very long time.
+Warning: these events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes have changed.
 
-Recently being promoted to a Process Technician in the Photolithography department of a Semi-conductor Fabrication (FAB) plant. The opportunities to use my skills were going to be endless; the Photolighography area was ripe with areas for automation. One key part of the process is the coating of the silicon wafers with a photoresistive layer, dispensed from a package that could cover hundered, if not thousands of wafers. When the package needed to be replaced, many checks were in place to confirm that the process and quality was not altered. No matter how good the manufacturing of the resist was, there are still variations: The viscosity will change as well as the photoresitive components and many other attributes. The thickness of the resist needs to be extremely accurate and there are many engineering measurements and calculations necessary to ensure that. Obtaining the best spin speed (RPM) for the thickness is where my Software Engineering skill manifested itself which helped automate our processes and obtain the best (stable) configuration.
+Recently being promoted to a Process Technician in the Photolithography department of a Semi-conductor Fabrication (FAB), the opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could analyze the magnitude of data being output.
 
-Resist Thickness is a key parameters that affects CD (Critical Dimension) in the lithography sequence. (https://ieeexplore.ieee.org/document/4529026)
+One key part of the process is the coating of the silicon wafers with a photoresistive layer, dispensed from a container that could hold enough liquid to cover hundreds, if not thousands of wafers. When the bottle was empty and needed to be replaced, many checks were required to confirm that the process and quality was still within the specifications. No matter how consistent the manufacturing of the resist was, there are still variations: The viscosity changes as well as the photoresitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
 
-The Swing Curve is a technique used that models the resist thickness, and incorporates thinfilm interferrence to determine the best thickness and stability. In general, this is a sine wave graph that is fit from a sampling of different resist thicknesses versus the CD size of the pattern being exposed on the wafers. This takes into account the very narrow light wavelength minimizing the affects from the numerous process variations.
+Obtaining the optimal spin speed (RPM) to obtain the best thickness is where my Software Engineering skill manifested itself.
+
+The Swing Curve is a technique used that models the resist thickness, and incorporates thinfilm interferrence to determine the best thickness and stability. In brief, this is a sine wave graph that is fit from a sampling of different resist thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. This formula takes into account the very narrow spectrum of light wavelengths being used minimizing the affects from the numerous process variations (thickness, temperature, over/under exposure, etc.).
 
 ![](https://github.com/schmeister/GoPlayground/blob/main/FitGo/testdata/Decay.png)
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/SineWaveDecay.GIF)
@@ -20,11 +22,11 @@ func SineFunc(x float64, ps []float64) float64 {
 }
 </pre>
 
-The dispensing and measurement phase is summarized as this: The resist is dispensed onto a series of wafers, with a DNS/Dainippon machine, each coated with a changing RPM, which resulted in a different thickness of resist. The thickness of each wafer is measured with a highly accurate measuring tools (https://www.kla.com/), exposed (https://www.asml.com/en), and developed, washing away the resist that was exposed. Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope). The raw Resist Thickness vs CD plotting would then look something like this:
+The dispensing and measurement phase is summarized as this: The resist is dispensed onto a series of wafers, each coated with a changing RPM, which resulted in a different thickness of resist. The thickness of each wafer is measured with a highly accurate measuring tools (https://www.kla.com/), exposed (https://www.asml.com/en), and developed, washing away the resist that was exposed (positive resist). Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope). The Resist Thickness vs CD was plotted and would look something like this:
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/raw_poly.png)
 
-Spin speed, temperatures, exposure rates, and a host of other variables may have micro-changes, the most stable location within the Swing Curve will needed to be found. This will be taken from the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of that curve at a specific location.  In the case of our Sine curve, we are only concerned with part that defines the slope, and thus need to only take a partial derivative (the Sine part) and ignore the rest (the dampening part), though we will add the Amplitude back in just for appearances.
+As previously mentioned, spin speed, temperatures, exposure rates, and other variables may have micro-changes, the most stable location within the Swing Curve will needed to be found. This will be found by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point. A slope of Zero (0) is optimal! In the case of our Sine curve, we are only concerned with part that defines the slope, and thus need to only take a partial derivative (the Sine part) and ignore the rest (the dampening part), though we will add the Amplitude back in just for appearances.
 
 <pre>
 func SineDerv(x float64, ps []float64) (float64, float64) {
@@ -77,7 +79,7 @@ type Raw struct {
 		Func:      funcs.SineFunc,
 	}
 	points := Generate(raw)
-
+....
 // Generate creates a number of points to attempt a fit to.
 // There is a randomization added to each point to create some variability.
 func Generate(raw Raw) Points {
@@ -104,9 +106,9 @@ func Generate(raw Raw) Points {
 
 ## Step 2: Fit our formula to that data
 
-From the raw data, we could probably come up with an approximation of the optimal spin speed, but that is not sufficient, we need as close as possible! The next task is to use those points and model them against the reference formula to find **the** best speed for our desired thickness.
+From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework. We need to do better. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness.
 
-Back when I originally wrote this, I used C and had to hand code my own Least Squares minimizing function. Today, many of those tools are easily available and the actual implementation takes a significantly less amount of time. For my modern reincarnation, I used GoLang and utilized minimizing and plotting packages making this almost trivial.
+Back when I originally wrote this tool, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function sitting on top. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and the actual implementation takes a significantly less amount of time. For my modern reincarnation, I used GoLang and utilized minimizing and plotting packages making this almost trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
 
 <pre>
 type Fitting struct {
@@ -187,9 +189,9 @@ func (fitting *Fitting) Fit() []float64 {
 
 Looks like we got a pretty good fit!
 
-## Step 3: Find the best (Zero) slope
+## Step 3: Find the optimal slope
 
-I do the best RPM and plotting in the same section of code:
+In this version, I do the best RPM calulations and plotting in the same section of code. the best RPM is provided in the Key.
 
 <pre>
 type Plotting struct {
@@ -279,7 +281,7 @@ And the final result:
 
 ## Step 4: but does it need to be this complicated?
 
-Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function:
+Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function. The use of the Decaying Sine function may only apply when experimenting with large potential thicknesses. 
 
 <pre>
 // Polynomial functions
@@ -293,6 +295,8 @@ func PolyDerv(_ float64, ps []float64) (float64, float64) {
 	return x, PolyFunc(x, ps)
 }
 </pre>
+
+Wow, that formula and derivation is significantly more straight forward!
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/best_poly.png)
 
