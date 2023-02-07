@@ -1,16 +1,21 @@
 # FitGo: Finding the best RPM on a Swing Curve with GoLang, go-hep, and GoNum
 
-In my early 20's I had my first task as a professional software engineer. I was in college working towards my BS in Computer Science and had completed Physics I & II, Calculus I & II, and a number of undergraduate Computer Science courses. Modula-2, C, and the HP-15C were my tools of choice. Ok, that last one may not count as a SW tool, but it was **the** Scientific Calculator of Engineers at the time. I had been programming for quite some time prior to this event. Years before, I started my interest in software by coding on an 8-bit Atari 400 with only 8KB of RAM. One of my first memories of programming a computer is typing the full issue of Antic V1-N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari, I would do this over and over (we had no non-volatile memory - disk, tape, etc.) modifying the code each time to see what happened (my favorite was Bats - page 57-60). I loved to experiment with the code modifying the physics and controls until I had a game that was uniquely mine. I took pages and pages of notes and probably could have written it from scratch at that point.
+In my early 20's I had my first task as a professional software engineer. I was in college working towards my BS in Computer Science and had completed Physics I & II, Calculus I & II, and a number of undergraduate Computer Science courses. Modula-2, C, and the HP-15C were my tools of choice. Ok, that last one may not count as a SW tool, but it was **the** Scientific Calculator of Engineers at the time. I had been programming for quite some time prior to this event. Years before, I started my life-long interest in software by coding on an 8-bit Atari 400 with only 8KB of RAM. My first memories of programming a computer was typing the full issue of Antic V1-N5 (Dec. 1982 - https://archive.org/details/1982-12-anticmagazine/mode/2up) into my Atari, I would type this issue in over and over (we did not have any non-volatile memory - disk, tape, etc.) modifying the code each time to see what happened (my favorite was Bats - page 57-60). I loved to experiment with the code modifying the physics and controls until I had a game that was uniquely mine. I took pages and pages of notes and probably could have written it from memory.
 
-**Warning**: the following events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes have changed.
+**Warning**: the following events took place over 30 years ago, many of the details have faded, as I am also sure, many of the technologies and processes may have changed (we were just experimenting with TARCs and BARCs - Top and Bottom Anti-Reflective Coatings).
 
-Fast forward a few years, I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication facility (FAB). The opportunities to use my skills were going to be endless. The Photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
+Fast forward back to my 20's, I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication facility (FAB). The opportunities to use my skills were going to be endless. The photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
 
-One key part of the process is the coating of the silicon wafers with a photoresistive layer. The dispensing mechanism was extremely accurate, but no matter how accurate the tools were, slight variations do occur. These results of these slight variations need to be minimized when working with incredibly small features as where required for semi-conductors. As an example, when the resist package was replaced, many checks were required to confirm that the resist thinfilm coating was still within the specifications. As mentioned before, no matter how consistent the manufacturing of the resist was, there are still variations: viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the most important aspects of semiconductor manufacturing. (https://ieeexplore.ieee.org/document/4529026). 
+One key part of the process is the coating of the silicon wafers with a [photoresist](https://en.wikipedia.org/wiki/Photoresist) layer. The dispensing mechanism was extremely accurate, but no matter how accurate the tools were, slight variations would occur. The results of these slight variations need to be minimized when working with incredibly small features as where required for semi-conductors. As an example, when the resist package was replaced, many checks were required to confirm that the resist thinfilm coating was still within the specifications. As mentioned before, no matter how consistent the processes were, there were still variations in the viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the [key parameters](https://ieeexplore.ieee.org/document/4529026) of semiconductor manufacturing. 
 
-Determining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skills manifested. The process at the time would require the engineer doing the checks to break out their HP 15C, enter the data and determine the best RPM. A fairly slow and error prone process.
+Determining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skills manifested. The process at the time would require the engineer doing the checks to break out their HP 15C, or pen and paper, and manually determine the best RPM. A fairly slow and error prone process.
 
-The Swing Curve was a technique used that models the resist thickness, taking into account thinfilm interferrence to determine the most stable point. In brief, this formula is a decaying sine wave graph that is fit from a sampling of different thicknesses versus the CD size (Critical Dimension - feature size) of the pattern being exposed on the wafers. As the wafers are exposed with a very narrow spectrum of light, constructive and destructive interferrence **could be a big problem**.
+The Swing Curve is a well known technique that modeled the resist thickness to determine the most stable point. The swing curve formula is a decaying sine wave that is fit to a sampling of different thinfilm thicknesses versus the CD (Critical Dimension) feature size of the pattern being exposed on the wafers. As the wafers are exposed with a very narrow spectrum of light, constructive and destructive interferrence could be a 
+**[big problem](https://en.wikipedia.org/wiki/Thin-film_interference)**.
+
+## Swing curve and decaying sine wave function
+
+Below is what a decaying sine wave looks like and a formula to obtain such a graph.
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/Decay.png)
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/SineWaveDecay.GIF)
@@ -22,11 +27,18 @@ func SineFunc(x float64, ps []float64) float64 {
 }
 </pre>
 
-The dispensing and measurement phase is summarized as this: The resist is dispensed onto a series of wafers, each coated with a changing RPM, which resulted in a different thickness of resist. The thickness of the resist is measured for each RPM with a highly accurate measuring tools (https://www.kla.com/), exposed (https://www.asml.com/en), and developed, which "washes" away the resist that was exposed (positive resist). Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope). The Resist Thickness vs CD was plotted and the raw data may look something like this:
+A generalized process of collecting the raw data could be summarized at this:
+1) The resist is dispensed onto a series of wafers, each is coated with an increasing RPM, resulting in different thicknesses of resist. 
+2) The thickness of the resist is measured on each wafer with a highly accurate measuring tools (https://www.kla.com/). 
+3) The resist is exposed (https://www.asml.com/en)
+4) And developed.
+5) Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope).
+
+The collected data is then plotted as a Resist Thickness vs CD graph as seen below.
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/raw_poly.png)
 
-As previously mentioned, spin speed, temperatures, exposure rates, and other variables may cause micro-changes in the thickness, the most stable location within the Swing Curve will needed to be found. This "optimal RPM" will be located by using the first derivative of the decaying sine wave formula. Remember, essentially the first derivative of a function results in the slope of the original formula at the given point, a slope of Zero (0) is optimal in this situation. Taking the derivative, in the case of our sine curve, we are only concerned with the part that defines the slope, and thus only need to take a partial derivative of the frequency (the sine part), and can ignore the the dampening/decaying part.
+The most stable location within the Swing Curve will needed to be found, where micro-variations cause the least change in CD. This "optimal RPM" will be located by using the first derivative of the decaying sine wave formula. _Remember, essentially the first derivative of a function results in the slope of the original formula at the given point, a slope of Zero (0) is optimal in this situation._ Taking the derivative, in the case of our decaying sine curve, we are only concerned with the part that defines the slope, and thus only need to take a partial derivative of the frequency (the sine part), and can ignore the rest (the decaying part).
 
 <pre>
 func SineDerv(x float64, ps []float64) (float64, float64) {
@@ -44,6 +56,8 @@ func SineDerv(x float64, ps []float64) (float64, float64) {
 }
 </pre>
 
+**Ok, the process and reasoning is understood. Lets pretend we are going to do this from scratch:**
+	
 ## Step 1: Create some sample data with variability
 
 Using the same formula that we are going to fit the data to, I created a "Generate" function that adds some randomized variability to the data (XVariance & YVariance). This will help simulate the variations in the process and validate our fitting function, see previous graph with plotted raw data.
@@ -112,7 +126,7 @@ From visual observation of the raw data, we could probably come up with an appro
 
 Back when I wrote my original version, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many useful tools are available for immediate inclusion and actual implementation is quite trivial. For my modern reincarnation, as you can see, I am using GoLang and import minimizing and plotting packages. As a rough order of magnitude, I would say my current solution is 1 line for every 20 lines of code I wrote back then.
 
-Depending on your data, the starting parameters for the fit will need to be adjusted, you can adjust those on the "ExecuteFitAndGraph(...)" call.
+**Note:** Depending on your data, the starting parameters for the fit will need to be adjusted, you can adjust those on the "ExecuteFitAndGraph(...)" call.
 
 <pre>
 type Fitting struct {
