@@ -46,7 +46,7 @@ func SineDerv(x float64, ps []float64) (float64, float64) {
 
 ## Step 1: Create some sample data with variability
 
-This randomized data will be used as input to our system to check that the fit and best RPM is indeed found.  See graph above with plotted raw data.
+Using the same formula that we are going to fit the data to, I created a "Generate" function that adds some randomized variability to the data (XVariance & YVariance). This will help simulate the variations in the process and validate our fitting function, see previous graph with plotted raw data.
 
 <pre>
 // Raw data
@@ -108,9 +108,11 @@ func Generate(raw Raw) Points {
 
 ## Step 2: Fit our formula to that data
 
-From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework if the zero slope is not chosen. We can do better than the approximation. The task is to use those raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness. To do this, we need to fit the curve to those raw points. 
+From visual observation of the raw data, we could probably come up with an approximation of an acceptable RPM, but that is not sufficient. The slightest variation in any of the steps would potentially cause a significant amount of rework if the optimal RPM/Thickness is not chosen. We can do better than the approximation. The task is to use the raw data points and model them against the reference formula to find **the** best speed to achieve our desired thickness. To do this, we need to fit the curve to those points. 
 
-Back when I wrote my original version, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded (by myself) Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many of those tools are easily available and actual implementation takes a significantly less amount of time. For my modern reincarnation, as you can tell, I am using GoLang and import minimizing and plotting packages making this whole solution quite trivial. As a rough order of magnitude, I would say it was 20 lines of code back then to every 1 line of code currently.
+Back when I wrote my original version, the techstack consisted of a VAX/VMS system with RS/1 (https://www.jstor.org/stable/1309968), C, and a hand coded Least Squares minimizing function. Nearly no pre-written frameworks to use, and those available required a significant amount of code to utilize properly. Today, many useful tools are available for immediate inclusion and actual implementation is quite trivial. For my modern reincarnation, as you can see, I am using GoLang and import minimizing and plotting packages. As a rough order of magnitude, I would say my current solution is 1 line for every 20 lines of code I wrote back then.
+
+Depending on your data, the starting parameters for the fit will need to be adjusted, you can adjust those on the "ExecuteFitAndGraph(...)" call.
 
 <pre>
 type Fitting struct {
@@ -193,7 +195,9 @@ Looks like we got a pretty good fit!
 
 ## Step 3: Find the optimal slope
 
-In my current version, I do the best RPM calulations and plotting in the same section of code. The best RPM is provided in the Key, and the zero slope line is attached to the sine curve at the best location. 
+At this point, we have the formula and the fitted parameters, the only thing left is to take the derivative and find where the slope is zero.
+
+In my example, you will see that I only take less than one full cycle of the sine wave. If I were to have more than one peak (or valley) then determinining where the slope is zero would be a little more complex. The question we would then need to answer is "which zero slope is the best for our purpose?"
 
 <pre>
 type Plotting struct {
@@ -283,7 +287,7 @@ And the final result:
 
 ## Step 4: but does it need to be this complicated?
 
-Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function. The use of the Decaying Sine function need only be applied when experimenting with larger ranges of thicknesses. Thickness variations that may span multiple waves.
+Once we know the approximate location within the Swing Curve, we can simplify the fit formula and its derivative to a simple Polynomial function. The use of the Decaying Sine function need only be applied when experimenting with potentially larger ranges of thicknesses or various exposure frequencies. Configurations that may span multiple cycles.
 
 <pre>
 // Polynomial functions
@@ -302,4 +306,4 @@ Wow, that formula and derivation is significantly more straight forward!
 
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/best_poly.png)
 
-And the best fit from the Sine vs Polynomial is only nominally different. Though using a computer, the hardest part may be determining the proper derivative for the complex forumula.
+And the best fit from the Sine vs Polynomial is only nominally different.
