@@ -6,7 +6,7 @@ In my early 20's I had my first task as a professional software engineer. I was 
 
 Fast forward back to my 20's, I had recently been promoted to a Process Technician in the photolithography department of a semi-conductor fabrication facility (FAB). The opportunities to use my skills were going to be endless. The photolighography area was ripe for computer automation and only computers could efficiently analyze the magnitude of data being generated.
 
-One key part of the process is the coating of the silicon wafers with a [photoresist](https://en.wikipedia.org/wiki/Photoresist) layer. The dispensing mechanism was extremely accurate, but no matter how accurate the tools were, slight variations would occur. The results of these slight variations need to be minimized when working with incredibly small features as where required for semi-conductors. As an example, when the resist package was replaced, many checks were required to confirm that the resist thinfilm coating was still within the specifications. As mentioned before, no matter how consistent the processes were, there were still variations in the viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the [key parameters](https://ieeexplore.ieee.org/document/4529026) of semiconductor manufacturing. 
+One key part of the process is the coating of the silicon wafers with a [photoresist](https://en.wikipedia.org/wiki/Photoresist) layer. The dispensing mechanism was extremely accurate, but no matter how accurate the tools were, slight variations would occur. The results of these slight variations need to be minimized when working with incredibly small features as were required for semi-conductors. As an example, when the resist package was replaced, many checks were necessary to confirm that the resist thinfilm coating was still within the specifications. As mentioned before, no matter how consistent the processes were, there were still variations in the viscosity, refractive index, photosensitive dyes, and many other attributes. The thickness of the resist needs to be extremely accurate and is one of the [key parameters](https://ieeexplore.ieee.org/document/4529026) of semiconductor manufacturing. 
 
 Determining the optimal spin speed (RPM) to obtain the best thickness is where my software engineering skills manifested. The process at the time would require the engineer doing the checks to break out their HP 15C, or pen and paper, and manually determine the best RPM. A fairly slow and error prone process.
 
@@ -27,9 +27,9 @@ func SineFunc(x float64, ps []float64) float64 {
 }
 </pre>
 
-A generalized process of collecting the raw data could be summarized at this:
+A generalized process of collecting the raw data could be summarized as such:
 1) The resist is dispensed onto a series of wafers, each is coated with an increasing RPM, resulting in different thicknesses of resist. 
-2) The thickness of the resist is measured on each wafer with a highly accurate measuring tools (https://www.kla.com/). 
+2) The thickness of the resist is measured on each wafer with highly accurate measuring tools (https://www.kla.com/). 
 3) The resist is exposed (https://www.asml.com/en)
 4) And developed.
 5) Finally the CDs were verified for optimal shape with a SEM (Scanning Electron Microscope).
@@ -321,3 +321,7 @@ Wow, that formula and derivation is significantly more straight forward!
 ![](https://github.com/schmeister/FitGo/blob/main/testdata/best_poly.png)
 
 And the best fit from the Sine vs Polynomial is only nominally different.
+
+## End notes
+
+This was a really fun time for me; I was learning a lot and I was helping my group become more efficient. Much of my career has been spent in this fashion, helping to optimize the role that I am currently filling. In many cases, not only do I strive to produce a quality SW product for a customer, at the same time, I work to make my day that much easier through SW automation and implementation of new tools. Additionally, when some say that SW is not a science based field, I have to say otherwise, in this situation I used quite a bit of math concepts that non-science based educations may not be familiar with. But I guess SW, as with anything else, it is what you make of it.
